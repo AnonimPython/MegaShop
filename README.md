@@ -53,6 +53,32 @@ For other roles (staff, hr_manager, expansion_manager), create via admin panel �
 
 After 2FA is enabled, every login requires a valid TOTP code.
 
+## Screenshots
+
+### Storefront
+
+| | |
+|---|---|
+| **Main page** — category grid with hero banner, search bar, mega menu catalog, and store selector | **Product detail** — description, dynamic specs table, DNS-style reviews (pros/cons/overall), related products, and multi-currency pricing |
+| ![Main page](screenshots/main_page.png) | ![Product detail](screenshots/product_desc.png) |
+| **Category page** — product cards with USD price, sort and filter options | **Cart** — items with quantities, total price, checkout button |
+| ![Category page](screenshots/category.png) | ![Cart](screenshots/cart.png) |
+| **Checkout** — delivery type cards (pickup / home delivery) with store search | **Order confirmation** — order details with items, delivery info, and status |
+| ![Checkout](screenshots/order_page.png) | ![Order created](screenshots/order_created.png) |
+
+### Admin Panel
+
+| | |
+|---|---|
+| **Dashboard** — stats overview (products, orders, revenue, low stock), recent orders | **Product list** — table with image, price, stock, category; CSV export |
+| ![Dashboard](screenshots/dashboard.png) | ![Add product](screenshots/add_product.png) |
+| **Category management** — create/edit categories with spec fields per category | **Order management** — order list with status, total, delivery type; status update |
+| ![Add category](screenshots/add_category.png) | ![Orders list](screenshots/list_of_orders.png) |
+| **Store management** — multi-store CRUD with staff roles and per-store stock | **Employee management** — HR employee profiles with documents and payroll |
+| ![Stores](screenshots/stores.png) | ![Employees](screenshots/employee_management.png) |
+| **Analytics** — revenue charts, top products, monthly/yearly Excel export | |
+| ![Analytics](screenshots/analytics.png) | |
+
 ## Features
 
 ### Catalog
