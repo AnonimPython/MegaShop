@@ -1,0 +1,44 @@
+### Python ###
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+dist/
+build/
+*.egg
+*.sqlite3
+
+### Virtual environment ###
+venv/
+.venv/
+env/
+.env/
+
+### IDE ###
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+### Django ###
+*.log
+local_settings.py
+db.sqlite3
+media/
+staticfiles/
+static_root/
+
+### Docker ###
+.docker/
+docker-compose.override.yml
+
+### OS ###
+.DS_Store
+Thumbs.db
+
+### Project specific ###
+.env.prod
+*.env
+celerybeat-schedule
+logs/
