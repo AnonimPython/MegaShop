@@ -1,0 +1,6 @@
+/* Admin overrides */
+.admin-sidebar { width: 250px; position: sticky; top: 0; height: 100vh; display: flex; flex-direction: column; }
+.admin-main { min-height: 100vh; }
+@media (max-width: 768px) {
+    .admin-sidebar { width: 100%; min-height: auto; height: auto; position: static; }
+}
