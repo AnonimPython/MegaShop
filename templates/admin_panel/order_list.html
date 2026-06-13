@@ -1,0 +1,64 @@
+{% extends 'admin_panel/base_admin.html' %}
+{% load currency_tags %}
+{% block title %}Orders — MegaShop{% endblock %}
+{% block header %}Order Management{% endblock %}
+{% block content %}
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>#</th>
+                    <th>Customer</th>
+                    <th>Delivery</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th>Payment</th>
+                    <th>Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr>
+                    <td>{{ order.id }}</td>
+                    <td>
+                        {{ order.first_name }} {{ order.last_name }}
+                        <br><small class="text-muted">{{ order.phone }}</small>
+                    </td>
+                    <td>
+                        {% if order.delivery_type == 'pickup' %}
+                        <i class="bi bi-shop text-primary"></i>
+                        {% if order.pickup_store %}{{ order.pickup_store.name }}{% else %}Pickup{% endif %}
+                        {% else %}
+                        <i class="bi bi-truck text-success"></i> {{ order.city|truncatechars:20 }}
+                        {% endif %}
+                    </td>
+                    <td>{{ order.total_cost|usd_format }}</td>
+                    <td>
+                        <span class="badge bg-{% if order.status == 'new' %}warning{% elif order.status == 'delivered' %}success{% elif order.status == 'cancelled' %}danger{% else %}info{% endif %}">
+                            {{ order.get_status_display }}
+                        </span>
+                    </td>
+                    <td>
+                        {% if order.paid %}
+                        <span class="badge bg-success">Paid</span>
+                        {% else %}
+                        <span class="badge bg-secondary">Unpaid</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ order.created|date:"d.m.Y H:i" }}</td>
+                    <td>
+                        <a href="{% url 'admin_panel:order_detail' order.id %}" class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i></a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" class="text-center py-4">No orders</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

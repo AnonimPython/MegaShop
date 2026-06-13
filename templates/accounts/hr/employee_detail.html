@@ -1,0 +1,116 @@
+{% extends 'admin_panel/base_admin.html' %}
+{% block title %}{{ employee.get_full_name|default:employee.username }} — HR{% endblock %}
+{% block header %}Employee: {{ employee.get_full_name|default:employee.username }}{% endblock %}
+{% block content %}
+<form method="post" enctype="multipart/form-data" class="row g-4">
+  {% csrf_token %}
+
+  <div class="col-md-6">
+    <div class="card shadow-sm">
+      <div class="card-header bg-dark text-white fw-bold">Identity & Documents</div>
+      <div class="card-body">
+        <div class="mb-3">
+          <label class="form-label">Passport / National ID number</label>
+          <input type="text" name="passport_number" class="form-control"
+                 value="{{ profile.passport_number|default:'' }}">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">NI number (UK) / SSN (US)</label>
+          <input type="text" name="ni_number" class="form-control"
+                 value="{{ profile.ni_number|default:'' }}">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Right to Work document</label>
+          {% if profile.right_to_work %}
+          <div class="mb-1">
+            <a href="{{ profile.right_to_work.url }}" target="_blank" class="btn btn-sm btn-outline-secondary">
+              <i class="bi bi-eye"></i> View current
+            </a>
+          </div>
+          {% endif %}
+          <input type="file" name="right_to_work" class="form-control">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Proof of Address</label>
+          {% if profile.proof_of_address %}
+          <div class="mb-1">
+            <a href="{{ profile.proof_of_address.url }}" target="_blank" class="btn btn-sm btn-outline-secondary">
+              <i class="bi bi-eye"></i> View current
+            </a>
+          </div>
+          {% endif %}
+          <input type="file" name="proof_of_address" class="form-control">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-6">
+    <div class="card shadow-sm">
+      <div class="card-header bg-dark text-white fw-bold">Payroll & Job</div>
+      <div class="card-body">
+        <div class="mb-3">
+          <label class="form-label">Bank name</label>
+          <input type="text" name="bank_name" class="form-control"
+                 value="{{ profile.bank_name|default:'' }}">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Account number</label>
+          <input type="text" name="bank_account_number" class="form-control"
+                 value="{{ profile.bank_account_number|default:'' }}">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Sort code (UK) / Routing (US)</label>
+          <input type="text" name="bank_sort_code" class="form-control"
+                 value="{{ profile.bank_sort_code|default:'' }}">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Job title</label>
+          <input type="text" name="job_title" class="form-control"
+                 value="{{ profile.job_title|default:'' }}">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Department</label>
+          <input type="text" name="department" class="form-control"
+                 value="{{ profile.department|default:'' }}">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Start date</label>
+          <input type="date" name="start_date" class="form-control"
+                 value="{{ profile.start_date|date:'Y-m-d'|default:'' }}">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12">
+    <div class="card shadow-sm">
+      <div class="card-header bg-dark text-white fw-bold">Emergency Contact</div>
+      <div class="card-body row g-3">
+        <div class="col-md-4">
+          <label class="form-label">Full name</label>
+          <input type="text" name="emergency_name" class="form-control"
+                 value="{{ profile.emergency_name|default:'' }}">
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Phone</label>
+          <input type="text" name="emergency_phone" class="form-control"
+                 value="{{ profile.emergency_phone|default:'' }}">
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Relationship</label>
+          <input type="text" name="emergency_relationship" class="form-control"
+                 value="{{ profile.emergency_relationship|default:'' }}">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 text-end">
+    <a href="{% url 'accounts:employee_list' %}" class="btn btn-outline-secondary">Back</a>
+    <button type="submit" class="btn btn-dark px-4 fw-bold">
+      <i class="bi bi-floppy"></i> Save
+    </button>
+  </div>
+</form>
+{% endblock %}

@@ -1,0 +1,54 @@
+<footer class="bg-dark text-light py-5 mt-5">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-lg-4">
+                <h5 class="fw-bold mb-3"><i class="bi bi-shop"></i> MegaShop</h5>
+                <p class="small text-secondary">Premium electronics and tech store. Best prices, fast delivery, expert support. Authorised retailer of Apple, Sony, Samsung, Microsoft and more.</p>
+                <div class="d-flex gap-3 mt-3">
+                    <a href="#" class="text-secondary fs-5"><i class="bi bi-instagram"></i></a>
+                    <a href="#" class="text-secondary fs-5"><i class="bi bi-youtube"></i></a>
+                    <a href="#" class="text-secondary fs-5"><i class="bi bi-twitter-x"></i></a>
+                    <a href="#" class="text-secondary fs-5"><i class="bi bi-facebook"></i></a>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-4">
+                <h6 class="fw-bold mb-3">Catalog</h6>
+                <ul class="list-unstyled small">
+                    {% for cat in categories %}
+                    <li class="mb-2"><a href="{% url 'catalog:product_list_by_category' cat.slug %}" class="text-secondary text-decoration-none">{{ cat.name }}</a></li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="col-lg-3 col-md-4">
+                <h6 class="fw-bold mb-3">Customers</h6>
+                <ul class="list-unstyled small">
+                    {% if user.is_authenticated %}
+                    <li class="mb-2"><a href="{% url 'accounts:profile' %}" class="text-secondary text-decoration-none"><i class="bi bi-person"></i> My account</a></li>
+                    <li class="mb-2"><a href="{% url 'orders:order_list' %}" class="text-secondary text-decoration-none"><i class="bi bi-box"></i> My orders</a></li>
+                    {% else %}
+                    <li class="mb-2"><a href="{% url 'accounts:login' %}" class="text-secondary text-decoration-none"><i class="bi bi-box-arrow-in-right"></i> Login</a></li>
+                    <li class="mb-2"><a href="{% url 'accounts:register' %}" class="text-secondary text-decoration-none"><i class="bi bi-person-plus"></i> Register</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+            <div class="col-lg-3 col-md-4">
+                <h6 class="fw-bold mb-3">Contact us</h6>
+                <ul class="list-unstyled small text-secondary">
+                    <li class="mb-2"><i class="bi bi-envelope"></i> support@megashop.co.uk</li>
+                    <li class="mb-2"><i class="bi bi-telephone"></i> +44 20 7123 4567</li>
+                    <li class="mb-2"><i class="bi bi-clock"></i> Mon–Sat 9:00–20:00</li>
+                    <li class="mb-2"><i class="bi bi-geo-alt"></i> London, Oxford Street</li>
+                </ul>
+            </div>
+        </div>
+        <hr class="border-secondary my-4">
+        <div class="d-flex flex-wrap justify-content-between align-items-center">
+            <p class="text-secondary small mb-0">&copy; 2026 MegaShop. All rights reserved.</p>
+            <div class="d-flex gap-4 small">
+                <a href="#" class="text-secondary text-decoration-none">Privacy Policy</a>
+                <a href="#" class="text-secondary text-decoration-none">Terms of Service</a>
+                <a href="#" class="text-secondary text-decoration-none">Returns</a>
+            </div>
+        </div>
+    </div>
+</footer>

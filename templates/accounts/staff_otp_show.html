@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block title %}Staff QR Code — MegaShop{% endblock %}
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-4 text-center">
+                    <div class="mb-3">
+                        <i class="bi bi-shield-exclamation text-warning" style="font-size: 3rem;"></i>
+                    </div>
+                    <h4 class="fw-bold mb-2">Staff account created</h4>
+                    <p class="text-muted mb-1">
+                        <strong>{{ staff_user.get_full_name|default:staff_user.username }}</strong>
+                        ({{ staff_user.email|default:'no email' }})
+                    </p>
+                    <div class="alert alert-warning small">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        Share this QR code with the staff member in person or via a secure channel.
+                        The code is only valid for this staff member.
+                    </div>
+
+                    <div class="mb-4 d-flex justify-content-center">
+                        <div class="bg-white p-2 rounded border d-inline-block">
+                            <img src="{{ qr_base64 }}" alt="QR Code" style="width: 220px; height: 220px;">
+                        </div>
+                    </div>
+
+                    <p class="small text-muted">
+                        Or share the key manually:
+                        <code class="d-block mt-1 p-2 bg-light rounded user-select-all" style="font-size: 0.8rem;">{{ secret }}</code>
+                    </p>
+
+                    <a href="{% url 'accounts:staff_list' %}" class="btn btn-dark w-100 py-2 fw-bold">
+                        <i class="bi bi-check-lg"></i> I've saved it, go to staff list
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

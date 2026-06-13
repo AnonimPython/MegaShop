@@ -1,0 +1,192 @@
+{% extends 'base.html' %}
+{% load currency_tags %}
+{% block title %}Checkout — MegaShop{% endblock %}
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-lg-7">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body p-4">
+                    <form method="post">
+                        {% csrf_token %}
+
+                        <h5 class="mb-3 fw-bold">Delivery method</h5>
+                        <div class="delivery-toggle">
+                            {% for radio in form.delivery_type %}
+                            <label class="delivery-card {% if radio.data.selected %}active{% endif %}">
+                                {{ radio.tag }}
+                                <div class="delivery-card-body">
+                                    {% if radio.data.value == 'pickup' %}
+                                    <div class="delivery-icon"><i class="bi bi-shop"></i></div>
+                                    <strong>Pickup from store</strong>
+                                    <small class="text-muted">Collect at your convenience</small>
+                                    {% else %}
+                                    <div class="delivery-icon"><i class="bi bi-truck"></i></div>
+                                    <strong>Home delivery</strong>
+                                    <small class="text-muted">Delivered to your door</small>
+                                    {% endif %}
+                                </div>
+                            </label>
+                            {% endfor %}
+                        </div>
+
+                        <div class="pickup-section mt-3">
+                            <label class="form-label fw-semibold" for="storeSearch">Search pickup store</label>
+                            <input id="storeSearch" class="form-control" type="text"
+                                   placeholder="Type city or store name…" autocomplete="off">
+                            <div class="mt-2" style="max-height: 240px; overflow-y: auto;">
+                                {{ form.pickup_store }}
+                            </div>
+                            <small class="text-muted mt-1 d-block"><i class="bi bi-info-circle"></i> Start typing to filter stores, or scroll the list</small>
+                            {% if form.pickup_store.errors %}
+                            <div class="text-danger small mt-1">{{ form.pickup_store.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="delivery-section mt-3">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label small text-muted">City *</label>
+                                    {{ form.city }}
+                                    {% if form.city.errors %}<div class="text-danger small">{{ form.city.errors|striptags }}</div>{% endif %}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label small text-muted">Postal code</label>
+                                    {{ form.postal_code }}
+                                </div>
+                                <div class="col-12 mb-3">
+                                    <label class="form-label small text-muted">Street address *</label>
+                                    {{ form.address }}
+                                    {% if form.address.errors %}<div class="text-danger small">{{ form.address.errors|striptags }}</div>{% endif %}
+                                </div>
+                                <div class="col-4 mb-3">
+                                    <label class="form-label small text-muted">Floor</label>
+                                    {{ form.delivery_floor }}
+                                </div>
+                                <div class="col-4 mb-3">
+                                    <label class="form-label small text-muted">Apartment / Office</label>
+                                    {{ form.delivery_apartment }}
+                                </div>
+                                <div class="col-4 mb-3">
+                                    <label class="form-label small text-muted">Intercom code</label>
+                                    <input type="text" name="delivery_intercom" class="form-control" placeholder="e.g. 123K" maxlength="20">
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+                        <h5 class="mb-3 fw-bold">Recipient details</h5>
+                        <div class="row">
+                            <div class="col-md-6 mb-3"><label class="form-label small text-muted">First name *</label>{{ form.first_name }}</div>
+                            <div class="col-md-6 mb-3"><label class="form-label small text-muted">Last name *</label>{{ form.last_name }}</div>
+                            <div class="col-md-6 mb-3"><label class="form-label small text-muted">Email *</label>{{ form.email }}</div>
+                            <div class="col-md-6 mb-3"><label class="form-label small text-muted">Phone *</label>{{ form.phone }}</div>
+                            <div class="col-12 mb-3">
+                                <label class="form-label small text-muted">Backup phone <span class="text-secondary">(if primary is unreachable)</span></label>
+                                {{ form.backup_phone }}
+                            </div>
+                            <div class="col-12 mb-3"><label class="form-label small text-muted">Comment</label>{{ form.comment }}</div>
+                            <div class="col-12 mb-4"><label class="form-label small text-muted">Payment method</label>{{ form.payment_method }}</div>
+                        </div>
+
+                        <button type="submit" class="btn btn-dark w-100 py-3 fw-bold fs-5">
+                            <i class="bi bi-check-circle"></i> Confirm order — {{ cart.get_total_price|usd_format }}
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="card shadow-sm border-0 sticky-top" style="top: 80px;">
+                <div class="card-body p-4">
+                    <h5 class="mb-3 fw-bold"><i class="bi bi-cart3"></i> Your order</h5>
+                    {% for item in cart %}
+                    <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
+                        <div>
+                            <small class="d-block fw-medium">{{ item.product.name|truncatechars:35 }}</small>
+                            <small class="text-muted">{{ item.price|usd_format }} × {{ item.quantity }}</small>
+                            <small class="text-muted d-block">{{ item.price|to_currency:'EUR' }} · {{ item.price|to_currency:'GBP' }}</small>
+                        </div>
+                        <span class="fw-bold">{{ item.total|usd_format }}</span>
+                    </div>
+                    {% endfor %}
+                    <div class="d-flex justify-content-between pt-2">
+                        <strong>Total:</strong>
+                        <strong class="fs-4 text-primary fw-bold">{{ cart.get_total_price|usd_format }}</strong>
+                    </div>
+                    <div class="d-flex justify-content-between text-muted small">
+                        <span></span>
+                        <span>{{ cart.get_total_price|to_currency:'EUR' }} · {{ cart.get_total_price|to_currency:'GBP' }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<style>
+.delivery-toggle { display: flex; gap: 1rem; }
+.delivery-toggle input { display: none; }
+.delivery-card {
+    flex: 1;
+    cursor: pointer;
+    border: 2px solid var(--gray-200);
+    border-radius: 12px;
+    padding: 1rem;
+    text-align: center;
+    transition: all 0.2s;
+    background: var(--white);
+}
+.delivery-card:hover { border-color: var(--accent); background: #f8f9fc; }
+.delivery-card input:checked + .delivery-card-body,
+.delivery-card:has(input:checked) {
+    border-color: var(--accent);
+    background: #f0f4ff;
+}
+.delivery-card:has(input:checked) {
+    border-color: var(--accent);
+    background: #f0f4ff;
+    box-shadow: 0 0 0 3px rgba(15, 52, 96, 0.1);
+}
+.delivery-card-body { display: flex; flex-direction: column; align-items: center; gap: 0.25rem; }
+.delivery-icon { font-size: 1.8rem; color: var(--accent); margin-bottom: 0.25rem; }
+.delivery-card-body strong { font-size: 0.95rem; }
+.delivery-card-body small { font-size: 0.75rem; }
+
+.pickup-section { display: block; }
+.delivery-section { display: none; }
+</style>
+<script>
+(function() {
+    var deliveryRadios = document.querySelectorAll('input[name="delivery_type"]');
+    var pickupSec = document.querySelector('.pickup-section');
+    var deliverySec = document.querySelector('.delivery-section');
+    function toggle(val) {
+        pickupSec.style.display = val === 'pickup' ? 'block' : 'none';
+        deliverySec.style.display = val === 'delivery' ? 'block' : 'none';
+    }
+    deliveryRadios.forEach(function(r) {
+        r.addEventListener('change', function() { toggle(this.value); });
+    });
+    var checked = document.querySelector('input[name="delivery_type"]:checked');
+    if (checked) toggle(checked.value);
+
+    // filter stores as user types
+    var storeSearch = document.getElementById('storeSearch');
+    var storeSelect = document.getElementById('pickupStoreSelect');
+    if (storeSearch && storeSelect) {
+        storeSearch.addEventListener('input', function() {
+            var q = this.value.toLowerCase();
+            for (var i = 0; i < storeSelect.options.length; i++) {
+                var opt = storeSelect.options[i];
+                if (opt.value === '') continue;
+                opt.style.display = opt.text.toLowerCase().indexOf(q) > -1 ? '' : 'none';
+            }
+        });
+    }
+})();
+</script>
+{% endblock %}

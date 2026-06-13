@@ -1,0 +1,154 @@
+{% extends 'admin_panel/base_admin.html' %}
+{% load currency_tags %}
+{% block title %}Dashboard — MegaShop{% endblock %}
+{% block header %}Dashboard{% endblock %}
+{% block content %}
+<div class="row g-4 mb-4">
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #0f3460, #16213e);">
+            <div class="card-body text-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-white-50 text-uppercase small mb-1">Products</h6>
+                        <h2 class="mb-0 fw-bold">{{ total_products }}</h2>
+                    </div>
+                    <i class="bi bi-box fs-1 opacity-25"></i>
+                </div>
+                <a href="{% url 'admin_panel:product_list' %}" class="text-white-50 small text-decoration-none mt-2 d-block">Manage →</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #1a8a5c, #146c48);">
+            <div class="card-body text-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-white-50 text-uppercase small mb-1">Orders</h6>
+                        <h2 class="mb-0 fw-bold">{{ total_orders }}</h2>
+                    </div>
+                    <i class="bi bi-truck fs-1 opacity-25"></i>
+                </div>
+                <a href="{% url 'admin_panel:order_list' %}" class="text-white-50 small text-decoration-none mt-2 d-block">Manage →</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #e94560, #c73a52);">
+            <div class="card-body text-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-white-50 text-uppercase small mb-1">Stores</h6>
+                        <h2 class="mb-0 fw-bold">{{ total_stores }}</h2>
+                    </div>
+                    <i class="bi bi-geo-alt fs-1 opacity-25"></i>
+                </div>
+                <a href="{% url 'admin_panel:store_list' %}" class="text-white-50 small text-decoration-none mt-2 d-block">Manage →</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #6c5ce7, #5a4bd1);">
+            <div class="card-body text-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-white-50 text-uppercase small mb-1">Revenue</h6>
+                        <h2 class="mb-0 fw-bold">{{ total_revenue|usd_format }}</h2>
+                    </div>
+                    <i class="bi bi-currency-ruble fs-1 opacity-25"></i>
+                </div>
+                <a href="{% url 'admin_panel:analytics_dashboard' %}" class="text-white-50 small text-decoration-none mt-2 d-block">Analytics →</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-6">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-bold">New Orders</h5>
+                <a href="{% url 'admin_panel:order_list' %}" class="btn btn-sm btn-outline-dark">All</a>
+            </div>
+            <div class="card-body">
+                {% if new_orders %}
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Customer</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in new_orders %}
+                        <tr>
+                            <td><a href="{% url 'admin_panel:order_detail' order.id %}" class="fw-bold">#{{ order.id }}</a></td>
+                            <td>{{ order.first_name }} {{ order.last_name }}</td>
+                            <td class="fw-semibold">{{ order.total_cost|usd_format }}</td>
+                            <td><span class="badge bg-warning-subtle text-warning-emphasis">{{ order.get_status_display }}</span></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <p class="text-muted mb-0 py-3 text-center">No new orders</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-bold">Low Stock</h5>
+                <a href="{% url 'admin_panel:product_list' %}" class="btn btn-sm btn-outline-dark">All products</a>
+            </div>
+            <div class="card-body">
+                {% if low_stock %}
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Stock</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for product in low_stock %}
+                        <tr>
+                            <td>{{ product.name }}</td>
+                            <td><span class="badge bg-danger">{{ product.stock }}</span></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <p class="text-muted mb-0 py-3 text-center">All products are well-stocked</p>
+                {% endif %}
+            </div>
+        </div>
+        <div class="card shadow-sm border-0 mt-3">
+            <div class="card-header bg-white border-bottom">
+                <h5 class="mb-0 fw-bold">Reviews Pending Moderation</h5>
+            </div>
+            <div class="card-body">
+                {% if recent_reviews %}
+                <ul class="list-unstyled mb-0">
+                    {% for review in recent_reviews %}
+                    <li class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                        <div>
+                            <strong>{{ review.user.username }}</strong>
+                            <span class="text-muted small">on {{ review.product.name|truncatechars:30 }}</span>
+                        </div>
+                        <small class="text-muted">{{ review.created|date:"d.m.Y" }}</small>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p class="text-muted mb-0 py-3 text-center">No new reviews</p>
+                {% endif %}
+                <a href="{% url 'admin_panel:review_list' %}" class="btn btn-sm btn-outline-dark mt-2">Moderation</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

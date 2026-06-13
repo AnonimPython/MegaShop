@@ -1,0 +1,64 @@
+{% extends 'admin_panel/base_admin.html' %}
+{% load currency_tags %}
+{% block title %}Products — MegaShop{% endblock %}
+{% block header %}Product Management{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <a href="{% url 'admin_panel:product_create' %}" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Add product</a>
+</div>
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>ID</th>
+                    <th>Photo</th>
+                    <th>Name</th>
+                    <th>Category</th>
+                    <th>Price</th>
+                    <th>Stock</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in products %}
+                <tr>
+                    <td>{{ product.id }}</td>
+                    <td>
+                        {% if product.image %}
+                        <img src="{{ product.image.url }}" width="50" height="50" style="object-fit: contain;" alt="">
+                        {% else %}
+                        <div class="bg-light" style="width: 50px; height: 50px;"></div>
+                        {% endif %}
+                    </td>
+                    <td>{{ product.name|truncatechars:40 }}</td>
+                    <td>{{ product.category.name }}</td>
+                    <td>{{ product.price|usd_format }}</td>
+                    <td>
+                        <span class="badge bg-{% if product.stock < 5 %}danger{% else %}success{% endif %}">
+                            {{ product.stock }}
+                        </span>
+                    </td>
+                    <td>
+                        {% if product.is_available %}
+                        <span class="badge bg-success">Active</span>
+                        {% else %}
+                        <span class="badge bg-secondary">Inactive</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'admin_panel:product_edit' product.id %}" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
+                        <a href="{% url 'admin_panel:product_delete' product.id %}" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" class="text-center py-4">No products</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

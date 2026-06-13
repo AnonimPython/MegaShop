@@ -1,0 +1,44 @@
+{% extends 'admin_panel/base_admin.html' %}
+{% block title %}Choose category — New product — MegaShop{% endblock %}
+{% block header %}New product: choose category{% endblock %}
+{% block content %}
+<p class="text-muted">Select a category for the product. Spec fields will be loaded based on the category.</p>
+
+<div class="row g-3">
+    {% for cat in categories %}
+    <div class="col-md-4 col-sm-6">
+        <a href="{% url 'admin_panel:product_create' %}?category={{ cat.id }}" class="text-decoration-none">
+            <div class="card shadow-sm h-100 border-0" style="transition: all 0.2s; cursor: pointer;">
+                <div class="card-body text-center py-4">
+                    <div style="font-size: 2.5rem; color: var(--accent); margin-bottom: 0.5rem;">
+                        {% if cat.slug == 'laptops' %}<i class="bi bi-laptop"></i>
+                        {% elif cat.slug == 'smartphones' %}<i class="bi bi-phone"></i>
+                        {% elif cat.slug == 'gaming' %}<i class="bi bi-controller"></i>
+                        {% elif cat.slug == 'audio' %}<i class="bi bi-headphones"></i>
+                        {% elif cat.slug == 'accessories' %}<i class="bi bi-mouse"></i>
+                        {% else %}<i class="bi bi-box"></i>{% endif %}
+                    </div>
+                    <h5 class="fw-bold mb-1">{{ cat.name }}</h5>
+                    <small class="text-muted">{{ cat.product_count }} products</small>
+                </div>
+            </div>
+        </a>
+    </div>
+    {% empty %}
+    <div class="col-12">
+        <p class="text-muted text-center">No categories available.</p>
+    </div>
+    {% endfor %}
+</div>
+
+<div class="mt-3">
+    <a href="{% url 'admin_panel:product_list' %}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left"></i> Back to products</a>
+</div>
+
+<style>
+.card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.1) !important;
+}
+</style>
+{% endblock %}

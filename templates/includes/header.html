@@ -1,0 +1,136 @@
+{% load static %}
+{% comment %} Mega menu hover with 200ms delay to prevent flicker when moving from nav-link to menu {% endcomment %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.mega-menu-item').forEach(function(item) {
+        var timer;
+        var menu = item.querySelector('.mega-menu');
+        if (!menu) return;
+        item.addEventListener('mouseenter', function() { clearTimeout(timer); menu.classList.add('show'); });
+        item.addEventListener('mouseleave', function() { timer = setTimeout(function() { menu.classList.remove('show'); }, 200); });
+        menu.addEventListener('mouseenter', function() { clearTimeout(timer); });
+        menu.addEventListener('mouseleave', function() { menu.classList.remove('show'); });
+    });
+});
+</script>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="{% url 'catalog:product_list' %}">
+            <i class="bi bi-shop"></i> MegaShop
+        </a>
+
+        {% if stores and request.path != '/catalog/' %}
+        <form action="{% url 'stores:set_store' %}" method="post" class="mx-2">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.path }}">
+            <select name="store_id" class="form-select form-select-sm bg-dark text-white border-secondary" style="width: auto;" onchange="this.form.submit()">
+                <option value="">— All stores —</option>
+                {% for s in stores %}
+                <option value="{{ s.id }}" {% if current_store and current_store.id == s.id %}selected{% endif %}>
+                    {{ s.name }} ({{ s.city }})
+                </option>
+                {% endfor %}
+            </select>
+        </form>
+        {% endif %}
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarMain">
+            <ul class="navbar-nav me-2">
+                <li class="nav-item mega-menu-item">
+                    <a class="nav-link" href="#">
+                        <i class="bi bi-grid"></i> Catalog <i class="bi bi-chevron-down small"></i>
+                    </a>
+                    <div class="mega-menu">
+                        <div class="mega-menu-inner">
+                            <div class="row g-3">
+                                {% for cat in categories %}
+                                <div class="col-6 col-md-4 col-lg-3 col-xl-2">
+                                    <a href="{% url 'catalog:product_list_by_category' cat.slug %}" class="mega-menu-link">
+                                        <div class="text-center">
+                                            <div class="mega-icon-wrap">
+                                                {% if cat.slug == 'laptops' %}<i class="bi bi-laptop"></i>
+                                                {% elif cat.slug == 'smartphones' %}<i class="bi bi-phone"></i>
+                                                {% elif cat.slug == 'gaming' %}<i class="bi bi-controller"></i>
+                                                {% elif cat.slug == 'audio' %}<i class="bi bi-headphones"></i>
+                                                {% elif cat.slug == 'accessories' %}<i class="bi bi-mouse"></i>
+                                                {% else %}<i class="bi bi-box"></i>{% endif %}
+                                            </div>
+                                            <span class="d-block mt-2 fw-medium">{{ cat.name }}</span>
+                                        </div>
+                                    </a>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            <div class="text-center mt-3">
+                                <a href="{% url 'catalog:product_list' %}" class="btn btn-outline-dark btn-sm px-4 rounded-pill">
+                                    <i class="bi bi-grid"></i> All products
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+            <form class="d-flex mx-auto my-2 my-lg-0" action="{% url 'catalog:product_list' %}" method="GET" style="max-width: 480px; width: 100%;">
+                <div class="input-group search-group">
+                    <span class="input-group-text bg-transparent border-end-0 search-icon"><i class="bi bi-search text-white-50"></i></span>
+                    <input class="form-control border-start-0 search-input" type="search" name="q" placeholder="Find a laptop, iPhone, PlayStation…" value="{{ search_query|default:'' }}">
+                    <button class="btn btn-outline-light search-btn" type="submit">Search</button>
+                </div>
+            </form>
+            <ul class="navbar-nav ms-auto align-items-center">
+                {% if geo_location.city and suggested_store %}
+                <li class="nav-item d-none d-lg-block">
+                    <span class="nav-link text-white-50 small"><i class="bi bi-geo-alt-fill"></i> {{ geo_location.city }}</span>
+                </li>
+                <li class="nav-item d-none d-lg-block">
+                    <span class="nav-link text-white-50 small" style="cursor: pointer;" title="Nearest store: {{ suggested_store.name }}">
+                        <i class="bi bi-shop"></i> {{ suggested_store.city }}
+                    </span>
+                </li>
+                {% elif geo_location.city %}
+                <li class="nav-item d-none d-lg-block">
+                    <span class="nav-link text-white-50 small"><i class="bi bi-geo-alt-fill"></i> {{ geo_location.city }}{% if geo_location.country_code != 'GB' %}, {{ geo_location.country }}{% endif %}</span>
+                </li>
+                {% endif %}
+                <li class="nav-item">
+                    <a class="nav-link position-relative" href="{% url 'cart:cart_detail' %}">
+                        <i class="bi bi-cart3 fs-5"></i>
+                        {% if cart|length > 0 %}
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                            {{ cart|length }}
+                        </span>
+                        {% endif %}
+                    </a>
+                </li>
+                {% if user.is_authenticated %}
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                        <i class="bi bi-person-circle"></i> {{ user.username|truncatechars:12 }}
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="{% url 'accounts:profile' %}"><i class="bi bi-person"></i> Profile</a></li>
+                        <li><a class="dropdown-item" href="{% url 'orders:order_list' %}"><i class="bi bi-box"></i> My orders</a></li>
+                        {% if user.is_staff or user.is_expansion_manager %}
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="{% url 'admin_panel:dashboard' %}"><i class="bi bi-gear"></i> Control Panel</a></li>
+                        {% endif %}
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <form method="post" action="{% url 'accounts:logout' %}" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="dropdown-item text-danger"><i class="bi bi-box-arrow-right"></i> Logout</button>
+                            </form>
+                        </li>
+                    </ul>
+                </li>
+                {% else %}
+                <li class="nav-item"><a class="nav-link" href="{% url 'accounts:login' %}"><i class="bi bi-person"></i> Login</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'accounts:register' %}">Register</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>

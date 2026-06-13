@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+{% load static currency_tags %}
+{% block title %}{{ category.name|default:'MegaShop — Tech & Electronics Store' }}{% endblock %}
+{% block content %}
+
+{% if not search_query and not category %}
+{% comment %} ─── Homepage hero banner ─── {% endcomment %}
+<div class="bg-dark text-white py-5" style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold mb-3">Premium Tech,<br>Best Price</h1>
+                <p class="lead text-white-50 mb-4">MacBook • PlayStation • iPhone • Samsung & more —<br>authorised retailer with full UK warranty.</p>
+                <div class="d-flex gap-3 flex-wrap">
+                    <a href="{% url 'catalog:product_list_by_category' 'laptops' %}" class="btn btn-danger btn-lg px-4 fw-bold"><i class="bi bi-laptop"></i> Shop Laptops</a>
+                    <a href="{% url 'catalog:product_list_by_category' 'smartphones' %}" class="btn btn-outline-light btn-lg px-4"><i class="bi bi-phone"></i> Smartphones</a>
+                </div>
+            </div>
+            <div class="col-lg-6 text-center d-none d-lg-block">
+                <i class="bi bi-robot" style="font-size: 10rem; opacity: 0.15;"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% comment %} ─── Featured categories row ─── {% endcomment %}
+<div class="container py-4">
+    <div class="row g-3">
+        {% for cat in categories %}
+        <div class="col-6 col-md-4 col-lg">
+            <a href="{% url 'catalog:product_list_by_category' cat.slug %}" class="text-decoration-none">
+                <div class="card border text-center py-3 px-2 h-100 category-card">
+                    <div class="card-body">
+                        {% if cat.slug == 'laptops' %}<i class="bi bi-laptop fs-1 text-primary"></i>
+                        {% elif cat.slug == 'smartphones' %}<i class="bi bi-phone fs-1 text-primary"></i>
+                        {% elif cat.slug == 'gaming' %}<i class="bi bi-controller fs-1 text-primary"></i>
+                        {% elif cat.slug == 'audio' %}<i class="bi bi-headphones fs-1 text-primary"></i>
+                        {% elif cat.slug == 'accessories' %}<i class="bi bi-mouse fs-1 text-primary"></i>
+                        {% else %}<i class="bi bi-box fs-1 text-primary"></i>{% endif %}
+                        <p class="mt-2 mb-0 fw-semibold text-dark small">{{ cat.name }}</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<div class="container py-4">
+    {% if category or search_query %}
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'catalog:product_list' %}">Home</a></li>
+            {% if category %}
+            <li class="breadcrumb-item active">{{ category.name }}</li>
+            {% endif %}
+        </ol>
+    </nav>
+    {% endif %}
+
+    <div class="row">
+        <aside class="col-md-3 mb-4">
+            <div class="card shadow-sm filter-card">
+                <div class="card-body">
+                    <h5 class="card-title fw-bold mb-3"><i class="bi bi-list-ul"></i> Categories</h5>
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2">
+                            <a href="{% url 'catalog:product_list' %}" class="text-decoration-none d-flex align-items-center {% if not category %}fw-bold text-dark{% else %}text-secondary{% endif %}">
+                                <i class="bi bi-grid me-2"></i> All products
+                            </a>
+                        </li>
+                        {% for cat in categories %}
+                        <li class="mb-2">
+                            <a href="{% url 'catalog:product_list_by_category' cat.slug %}" class="text-decoration-none d-flex align-items-center {% if category == cat %}fw-bold text-dark{% else %}text-secondary{% endif %}">
+                                <i class="bi bi-chevron-right me-2 small"></i> {{ cat.name }}
+                            </a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card shadow-sm mt-3 filter-card">
+                <div class="card-body">
+                    <h5 class="card-title fw-bold mb-3"><i class="bi bi-arrow-up-down"></i> Sort by</h5>
+                    <div class="d-flex flex-column gap-2">
+                        <a href="?sort=-created{% if search_query %}&q={{ search_query }}{% endif %}" class="btn btn-outline-dark btn-sm text-start">Newest</a>
+                        <a href="?sort=price{% if search_query %}&q={{ search_query }}{% endif %}" class="btn btn-outline-dark btn-sm text-start">Price: Low to High</a>
+                        <a href="?sort=-price{% if search_query %}&q={{ search_query }}{% endif %}" class="btn btn-outline-dark btn-sm text-start">Price: High to Low</a>
+                        <a href="?sort=popular{% if search_query %}&q={{ search_query }}{% endif %}" class="btn btn-outline-dark btn-sm text-start">Most Popular</a>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <div class="col-md-9">
+            {% if search_query %}
+            <h4 class="mb-4 fw-bold">Search results for "{{ search_query }}"</h4>
+            {% elif category %}
+            <h4 class="mb-4 fw-bold">{{ category.name }}</h4>
+            {% else %}
+            <h4 class="mb-4 fw-bold">All products</h4>
+            {% endif %}
+
+            {% if products %}
+            <div class="row g-4">
+                {% for product in products %}
+                <div class="col-sm-6 col-lg-4">
+                    <div class="card h-100 shadow-sm product-card position-relative">
+                        <div class="product-img-wrap">
+                            {% if product.image %}
+                            <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
+                            {% else %}
+                            <div class="bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                                <i class="bi bi-image text-muted" style="font-size: 3rem;"></i>
+                            </div>
+                            {% endif %}
+                            {% if product.discount_percent > 0 %}
+                            <span class="badge bg-danger position-absolute top-0 end-0 m-2">-{{ product.discount_percent }}%</span>
+                            {% endif %}
+                            {% if product.is_new %}
+                            <span class="badge bg-success position-absolute top-0 start-0 m-2">New</span>
+                            {% endif %}
+                        </div>
+                        <div class="card-body d-flex flex-column">
+                            <h6 class="card-title">
+                                <a href="{{ product.get_absolute_url }}" class="stretched-link text-decoration-none text-dark">
+                                    {{ product.name|truncatechars:50 }}
+                                </a>
+                            </h6>
+                            <div class="mt-auto">
+                                {% if product.old_price %}
+                                <small class="text-muted text-decoration-line-through price-old">{{ product.old_price|usd_format }}</small>
+                                {% endif %}
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="price-current">{{ product.price|usd_format }}</span>
+                                    <form action="{% url 'cart:cart_add' product.id %}" method="post" class="position-relative" style="z-index: 3;">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="quantity" value="1">
+                                        <button type="submit" class="btn btn-outline-primary btn-sm rounded-circle" style="width: 38px; height: 38px;">
+                                            <i class="bi bi-cart-plus"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="bi bi-search text-muted" style="font-size: 3rem;"></i>
+                <h5 class="mt-3">No products found</h5>
+                <p class="text-muted">Try changing your search criteria</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

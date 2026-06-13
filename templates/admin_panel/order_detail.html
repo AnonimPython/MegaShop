@@ -1,0 +1,95 @@
+{% extends 'admin_panel/base_admin.html' %}
+{% load currency_tags %}
+{% block title %}Order #{{ order.id }} — MegaShop{% endblock %}
+{% block header %}Order #{{ order.id }}{% endblock %}
+{% block content %}
+<div class="row g-4">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h5>Order Items</h5>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Price</th>
+                            <th>Quantity</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in order.items.all %}
+                        <tr>
+                            <td>{{ item.product_name }}</td>
+                            <td>{{ item.product_price|usd_format }}</td>
+                            <td>{{ item.quantity }}</td>
+                            <td>{{ item.product_price|usd_format }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot>
+                        <tr class="fw-bold">
+                            <td colspan="3">Total</td>
+                            <td>{{ order.total_cost|usd_format }}</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow-sm mb-3">
+            <div class="card-body">
+                <h5>Order Status</h5>
+                <form method="post" action="{% url 'admin_panel:order_update_status' order.id %}">
+                    {% csrf_token %}
+                    <select name="status" class="form-control mb-2">
+                        {% for key, value in order.STATUS_CHOICES %}
+                        <option value="{{ key }}" {% if order.status == key %}selected{% endif %}>{{ value }}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit" class="btn btn-primary w-100">Update status</button>
+                </form>
+            </div>
+        </div>
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h5>Customer Details</h5>
+                <p class="mb-1"><strong>Name:</strong> {{ order.first_name }} {{ order.last_name }}</p>
+                <p class="mb-1"><strong>Email:</strong> {{ order.email }}</p>
+                <p class="mb-1"><strong>Phone:</strong> {{ order.phone }}</p>
+                {% if order.backup_phone %}
+                <p class="mb-1"><strong>Backup phone:</strong> {{ order.backup_phone }}</p>
+                {% endif %}
+                <hr>
+                <h5>Delivery</h5>
+                <p class="mb-1">
+                    <strong>Method:</strong>
+                    {% if order.delivery_type == 'pickup' %}Pickup from store{% else %}Home delivery{% endif %}
+                </p>
+                {% if order.delivery_type == 'pickup' and order.pickup_store %}
+                <p class="mb-1"><strong>Store:</strong> {{ order.pickup_store.name }}</p>
+                <p class="mb-1">{{ order.pickup_store.address }} — {{ order.pickup_store.phone }}</p>
+                {% elif order.delivery_type == 'delivery' %}
+                <p class="mb-1"><strong>City:</strong> {{ order.city }}</p>
+                <p class="mb-1"><strong>Address:</strong> {{ order.address }}</p>
+                {% if order.postal_code %}<p class="mb-1"><strong>Postal code:</strong> {{ order.postal_code }}</p>{% endif %}
+                {% if order.delivery_floor %}<p class="mb-1"><strong>Floor:</strong> {{ order.delivery_floor }}</p>{% endif %}
+                {% if order.delivery_apartment %}<p class="mb-1"><strong>Apartment:</strong> {{ order.delivery_apartment }}</p>{% endif %}
+                {% elif order.store %}
+                <p class="mb-1"><strong>Store:</strong> {{ order.store.name }}
+                {% else %}
+                <p class="mb-1"><strong>City:</strong> {{ order.city }}</p>
+                <p class="mb-1"><strong>Address:</strong> {{ order.address }}</p>
+                {% endif %}
+                {% if order.comment %}
+                <p class="mb-1"><strong>Comment:</strong> {{ order.comment }}</p>
+                {% endif %}
+                <hr>
+                <p class="mb-1"><strong>Payment:</strong> {{ order.get_payment_method_display }}</p>
+                <p class="mb-0"><strong>Payment status:</strong> {% if order.paid %}Paid{% else %}Unpaid{% endif %}</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends 'admin_panel/base_admin.html' %}
+{% block header %}Confirm deletion{% endblock %}
+{% block content %}
+<div class="card shadow-sm">
+    <div class="card-body text-center p-5">
+        <i class="bi bi-exclamation-triangle text-danger" style="font-size: 4rem;"></i>
+        <h4 class="mt-3">Delete store "{{ store.name }}"?</h4>
+        <p class="text-danger">All store information will be permanently deleted.</p>
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger"><i class="bi bi-trash"></i> Delete</button>
+            <a href="{% url 'admin_panel:store_list' %}" class="btn btn-outline-secondary">Cancel</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

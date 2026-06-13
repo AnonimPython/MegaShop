@@ -1,0 +1,204 @@
+{% extends 'base.html' %}
+{% load static currency_tags %}
+{% block title %}{{ product.name }} — MegaShop{% endblock %}
+{% block content %}
+<div class="container py-4">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'catalog:product_list' %}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'catalog:product_list_by_category' product.category.slug %}">{{ product.category.name }}</a></li>
+            <li class="breadcrumb-item active">{{ product.name|truncatechars:30 }}</li>
+        </ol>
+    </nav>
+
+    <div class="row g-4">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                {% if product.image %}
+                <img src="{{ product.image.url }}" class="card-img-top p-3" alt="{{ product.name }}" style="object-fit: contain; max-height: 400px;">
+                {% else %}
+                <div class="bg-light d-flex align-items-center justify-content-center" style="height: 400px;">
+                    <i class="bi bi-image text-muted" style="font-size: 5rem;"></i>
+                </div>
+                {% endif %}
+            </div>
+            {% if product.images.all %}
+            <div class="d-flex gap-2 mt-3">
+                {% for img in product.images.all %}
+                <img src="{{ img.image.url }}" class="img-thumbnail" style="width: 70px; height: 70px; object-fit: cover; cursor: pointer;">
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="col-md-6">
+            <h3>{{ product.name }}</h3>
+            <div class="mb-2">
+                {% for i in "12345" %}
+                <i class="bi bi-star{% if forloop.counter <= avg_rating %}-fill text-warning{% else %} text-muted{% endif %}"></i>
+                {% endfor %}
+                <small class="text-muted ms-2">{{ reviews.count }} reviews</small>
+            </div>
+
+            {% if product.old_price %}
+            <p class="text-muted text-decoration-line-through fs-5 price-old">{{ product.old_price|usd_format }}</p>
+            {% endif %}
+            <h2 class="text-primary fw-bold price-current" style="font-size: 2rem;">{{ product.price|usd_format }}</h2>
+            <small class="text-muted">{{ product.price|to_currency:'EUR' }} · {{ product.price|to_currency:'GBP' }}</small>
+
+            {% if product.warranty %}
+            <p class="text-success"><i class="bi bi-shield-check"></i> Warranty: {{ product.warranty }}</p>
+            {% endif %}
+
+            <form action="{% url 'cart:cart_add' product.id %}" method="post" class="mt-3">
+                {% csrf_token %}
+                <div class="input-group mb-3" style="max-width: 200px;">
+                    <button type="button" class="btn btn-outline-secondary" onclick="this.nextElementSibling.stepDown()">−</button>
+                    <input type="number" name="quantity" value="1" min="1" max="{{ product.stock }}" class="form-control text-center">
+                    <button type="button" class="btn btn-outline-secondary" onclick="this.previousElementSibling.stepUp()">+</button>
+                </div>
+                <button type="submit" class="btn btn-primary btn-lg w-100">
+                    <i class="bi bi-cart-plus"></i> Add to cart
+                </button>
+            </form>
+
+            {% if product.stock > 0 %}
+            <p class="text-success mt-2"><i class="bi bi-check-circle"></i> In stock: {{ product.stock }} pcs.</p>
+            {% else %}
+            <p class="text-danger mt-2"><i class="bi bi-x-circle"></i> Out of stock</p>
+            {% endif %}
+
+            {% if product.description %}
+            <hr>
+            <h5>Description</h5>
+            <p>{{ product.description|linebreaks }}</p>
+            {% endif %}
+
+            {% if product.specifications %}
+            <hr>
+            <h5>Specifications</h5>
+            <table class="table table-sm">
+                {% for key, value in product.specifications.items %}
+                <tr>
+                    <td class="text-muted">{{ key }}</td>
+                    <td>{{ value }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if related_products %}
+    <hr class="my-5">
+    <h4 class="mb-4">Related products</h4>
+    <div class="row g-4">
+        {% for product in related_products %}
+        <div class="col-sm-6 col-lg-3">
+            <div class="card h-100 shadow-sm product-card position-relative">
+                <div>
+                    {% if product.image %}
+                    <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}" style="height: 150px; object-fit: contain; padding: 0.5rem;">
+                    {% else %}
+                    <div class="bg-light d-flex align-items-center justify-content-center" style="height: 150px;">
+                        <i class="bi bi-image text-muted" style="font-size: 2rem;"></i>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="card-body d-flex flex-column">
+                    <h6 class="card-title">
+                        <a href="{{ product.get_absolute_url }}" class="stretched-link text-decoration-none text-dark">{{ product.name|truncatechars:40 }}</a>
+                    </h6>
+                    <div class="mt-auto position-relative">
+                        <span class="fw-bold text-primary price-current">{{ product.price|usd_format }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <hr class="my-5">
+    <h4 class="mb-4">Reviews ({{ reviews.count }})</h4>
+
+    {% if user.is_authenticated %}
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <h5>{% if review_form.instance.pk %}Edit your review{% else %}Leave a review{% endif %}</h5>
+            <form method="post" id="review-form">
+                {% csrf_token %}
+                {% for field in review_form %}
+                <div class="mb-3">
+                    <label class="form-label fw-medium small">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.errors %}
+                    <div class="text-danger small">{{ field.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+                <button type="submit" class="btn btn-dark">
+                    {% if review_form.instance.pk %}<i class="bi bi-pencil"></i> Update{% else %}<i class="bi bi-send"></i> Submit{% endif %}
+                </button>
+            </form>
+        </div>
+    </div>
+    {% else %}
+    <p class="text-muted"><a href="{% url 'accounts:login' %}">Log in</a> to leave a review.</p>
+    {% endif %}
+
+    {% for review in reviews %}
+    <div class="card shadow-sm mb-3">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <strong>{{ review.user.username }}</strong>
+                    <div class="mt-1">
+                        {% for i in "12345" %}
+                        <i class="bi bi-star{% if forloop.counter <= review.rating %}-fill text-warning{% endif %}"></i>
+                        {% endfor %}
+                    </div>
+                </div>
+                <small class="text-muted">{{ review.created|date:"d.m.Y" }}</small>
+            </div>
+            {% if review.pros %}
+            <div class="mt-3">
+                <span class="badge bg-success bg-opacity-10 text-success small fw-medium px-2 py-1"><i class="bi bi-hand-thumbs-up"></i> What I liked</span>
+                <p class="mb-0 mt-1">{{ review.pros }}</p>
+            </div>
+            {% endif %}
+            {% if review.cons %}
+            <div class="mt-2">
+                <span class="badge bg-danger bg-opacity-10 text-danger small fw-medium px-2 py-1"><i class="bi bi-hand-thumbs-down"></i> What I did not like</span>
+                <p class="mb-0 mt-1">{{ review.cons }}</p>
+            </div>
+            {% endif %}
+            {% if review.text %}
+            <div class="mt-2">
+                <span class="text-muted small fw-medium">Overall review</span>
+                <p class="mb-0 mt-1">{{ review.text }}</p>
+            </div>
+            {% endif %}
+            {% if review.user == user %}
+            <div class="mt-2">
+                <a href="#" onclick="document.getElementById('review-form').scrollIntoView({behavior:'smooth'}); return false;" class="btn btn-sm btn-outline-secondary me-1"><i class="bi bi-pencil"></i> Edit</a>
+                <a href="{% url 'reviews:delete_review' review.id %}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete your review?')"><i class="bi bi-trash"></i></a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% empty %}
+    <p class="text-muted">No reviews yet. Be the first!</p>
+    {% endfor %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.querySelectorAll('.img-thumbnail').forEach(img => {
+        img.addEventListener('click', function() {
+            document.querySelector('.card-img-top').src = this.src;
+        });
+    });
+</script>
+{% endblock %}

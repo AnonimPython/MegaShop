@@ -1,0 +1,52 @@
+{% extends 'admin_panel/base_admin.html' %}
+{% block title %}Categories — MegaShop{% endblock %}
+{% block header %}Category Management{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <a href="{% url 'admin_panel:category_create' %}" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Add category</a>
+</div>
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Slug</th>
+                    <th>Parent</th>
+                    <th>Active</th>
+                    <th>Products</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cat in categories %}
+                <tr>
+                    <td>{{ cat.id }}</td>
+                    <td>{{ cat.name }}</td>
+                    <td><code>{{ cat.slug }}</code></td>
+                    <td>{{ cat.parent.name|default:'—' }}</td>
+                    <td>
+                        {% if cat.is_active %}
+                        <span class="badge bg-success">Yes</span>
+                        {% else %}
+                        <span class="badge bg-secondary">No</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ cat.products.count }}</td>
+                    <td>
+                        <a href="{% url 'admin_panel:category_edit' cat.id %}" class="btn btn-sm btn-outline-primary" title="Edit"><i class="bi bi-pencil"></i></a>
+                        <a href="{% url 'admin_panel:category_spec_field_list' cat.id %}" class="btn btn-sm btn-outline-dark" title="Specification fields"><i class="bi bi-list-check"></i></a>
+                        <a href="{% url 'admin_panel:category_delete' cat.id %}" class="btn btn-sm btn-outline-danger" title="Delete"><i class="bi bi-trash"></i></a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center py-4">No categories</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

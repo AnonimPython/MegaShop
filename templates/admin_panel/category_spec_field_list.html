@@ -1,0 +1,46 @@
+{% extends 'admin_panel/base_admin.html' %}
+{% block title %}Spec Fields — {{ category.name }} — MegaShop{% endblock %}
+{% block header %}Specification Fields: {{ category.name }}{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <p class="text-muted mb-0">Define custom spec fields for products in this category.</p>
+    <a href="{% url 'admin_panel:category_spec_field_create' category.id %}" class="btn btn-dark btn-sm">
+        <i class="bi bi-plus-lg"></i> Add field
+    </a>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>#</th>
+                    <th>Field name</th>
+                    <th>Type</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for f in fields %}
+                <tr>
+                    <td>{{ f.sort_order }}</td>
+                    <td><strong>{{ f.field_name }}</strong></td>
+                    <td>{{ f.get_field_type_display }}</td>
+                    <td class="text-end">
+                        <a href="{% url 'admin_panel:category_spec_field_edit' category.id f.id %}" class="btn btn-outline-dark btn-sm me-1"><i class="bi bi-pencil"></i></a>
+                        <form method="post" action="{% url 'admin_panel:category_spec_field_delete' category.id f.id %}" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('Delete this field?')"><i class="bi bi-trash"></i></button>
+                        </form>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="4" class="text-center py-4 text-muted">No spec fields defined for this category.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<a href="{% url 'admin_panel:category_list' %}" class="btn btn-outline-dark btn-sm mt-3"><i class="bi bi-arrow-left"></i> Back to categories</a>
+{% endblock %}

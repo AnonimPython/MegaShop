@@ -1,0 +1,55 @@
+{% extends 'admin_panel/base_admin.html' %}
+{% load currency_tags %}
+{% block title %}Stock — {{ store.name }}{% endblock %}
+{% block header %}Stock: {{ store.name }}{% endblock %}
+{% block content %}
+<div class="row g-4">
+    <div class="col-md-5">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white"><h5 class="mb-0">Add Stock</h5></div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label">Product</label>
+                        <select name="product_id" class="form-control" required>
+                            <option value="">— Select —</option>
+                            {% for p in all_products %}
+                            <option value="{{ p.id }}">{{ p.name }} ({{ p.price|usd_format }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Quantity</label>
+                        <input type="number" name="stock" class="form-control" value="1" min="0" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Add</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-7">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white"><h5 class="mb-0">Current Stock</h5></div>
+            <div class="card-body p-0">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr><th>Product</th><th>Category</th><th>Stock</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for s in stocks %}
+                        <tr>
+                            <td>{{ s.product.name|truncatechars:40 }}</td>
+                            <td>{{ s.product.category.name }}</td>
+                            <td><span class="badge bg-{% if s.stock < 5 %}danger{% else %}success{% endif %} fs-6">{{ s.stock }}</span></td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="3" class="text-center py-4">No stock records</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

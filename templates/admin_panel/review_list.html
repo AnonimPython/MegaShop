@@ -1,0 +1,60 @@
+{% extends 'admin_panel/base_admin.html' %}
+{% block title %}Reviews — MegaShop{% endblock %}
+{% block header %}Review Management{% endblock %}
+{% block content %}
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>ID</th>
+                    <th>Product</th>
+                    <th>User</th>
+                    <th>Pros / Cons</th>
+                    <th>Review</th>
+                    <th>Rating</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for review in reviews %}
+                <tr>
+                    <td>{{ review.id }}</td>
+                    <td>{{ review.product.name|truncatechars:30 }}</td>
+                    <td>{{ review.user.username }}</td>
+                    <td><small class="text-success"><i class="bi bi-hand-thumbs-up"></i> {{ review.pros|truncatechars:30 }}</small>{% if review.pros and review.cons %}<br>{% endif %}{% if review.cons %}<small class="text-danger"><i class="bi bi-hand-thumbs-down"></i> {{ review.cons|truncatechars:30 }}</small>{% endif %}</td>
+                    <td>{{ review.text|truncatechars:30 }}</td>
+                    <td>
+                        {% for i in "12345" %}
+                        <i class="bi bi-star{% if forloop.counter <= review.rating %}-fill text-warning{% endif %} small"></i>
+                        {% endfor %}
+                    </td>
+                    <td>
+                        {% if review.is_moderated %}
+                        <span class="badge bg-success">Published</span>
+                        {% else %}
+                        <span class="badge bg-warning text-dark">Pending moderation</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ review.created|date:"d.m.Y" }}</td>
+                    <td>
+                        <form method="post" action="{% url 'admin_panel:review_moderate' review.id %}" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-outline-{% if review.is_moderated %}warning{% else %}success{% endif %}">
+                                {% if review.is_moderated %}<i class="bi bi-eye-slash"></i>{% else %}<i class="bi bi-check-lg"></i>{% endif %}
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="9" class="text-center py-4">No reviews</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

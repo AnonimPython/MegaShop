@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% load currency_tags %}
+{% block title %}Order #{{ order.id }} — MegaShop{% endblock %}
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-body text-center p-5">
+                    <div class="mb-3">
+                        <i class="bi bi-check-circle-fill text-success" style="font-size: 4rem;"></i>
+                    </div>
+                    <h3 class="fw-bold">Order #{{ order.id }} placed!</h3>
+                    <p class="text-muted">Thank you for your purchase! Confirmation sent to {{ order.email }}</p>
+                    <hr>
+                    <div class="row text-start">
+                        <div class="col-md-6">
+                            <h6 class="small text-muted text-uppercase">Recipient</h6>
+                            <p class="mb-1 fw-medium">{{ order.first_name }} {{ order.last_name }}</p>
+                            <p class="mb-1">{{ order.email }}</p>
+                            <p class="mb-1">{{ order.phone }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="small text-muted text-uppercase">
+                                {% if order.delivery_type == 'pickup' %}Pickup{% else %}Delivery{% endif %}
+                            </h6>
+                            {% if order.delivery_type == 'pickup' and order.pickup_store %}
+                            <p class="mb-1 fw-medium">{{ order.pickup_store.name }}</p>
+                            <p class="mb-1">{{ order.pickup_store.address }}</p>
+                            <p class="mb-1">{{ order.pickup_store.phone }}</p>
+                            {% elif order.delivery_type == 'delivery' %}
+                            <p class="mb-1 fw-medium">{{ order.city }}</p>
+                            <p class="mb-1">{{ order.address }}</p>
+                            {% if order.delivery_floor or order.delivery_apartment %}
+                            <p class="mb-1">Floor {{ order.delivery_floor }}, Apt {{ order.delivery_apartment }}</p>
+                            {% endif %}
+                            {% if order.backup_phone %}
+                            <p class="mb-1">Backup: {{ order.backup_phone }}</p>
+                            {% endif %}
+                            {% elif order.store %}
+                            <p class="mb-1 fw-medium">{{ order.store.name }}</p>
+                            <p class="mb-1">{{ order.store.address }}</p>
+                            {% else %}
+                            <p class="mb-1">{{ order.city }}, {{ order.address }}</p>
+                            {% endif %}
+                            <p class="mb-1">Status: <span class="badge bg-warning">{{ order.get_status_display }}</span></p>
+                            <p class="mb-1">Payment: <span class="badge bg-info">{{ order.get_payment_method_display }}</span></p>
+                        </div>
+                    </div>
+                    <hr>
+                    <h6 class="small text-muted text-uppercase mb-3">Order items</h6>
+                    {% for item in order.items.all %}
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>{{ item.product_name }} <small class="text-muted">×{{ item.quantity }}</small></span>
+                        <span class="fw-medium">{{ item.product_price|usd_format }}</span>
+                    </div>
+                    {% endfor %}
+                    <hr>
+                    <div class="d-flex justify-content-between">
+                        <strong>Total:</strong>
+                        <strong class="fs-5 text-primary">{{ order.total_cost|usd_format }}</strong>
+                    </div>
+                </div>
+            </div>
+            <div class="text-center mt-4">
+                <a href="{% url 'catalog:product_list' %}" class="btn btn-dark px-4"><i class="bi bi-arrow-left"></i> To home page</a>
+                {% if user.is_authenticated %}
+                <a href="{% url 'orders:order_list' %}" class="btn btn-outline-dark px-4">My orders</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

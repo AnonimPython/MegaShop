@@ -1,0 +1,48 @@
+{% extends 'admin_panel/base_admin.html' %}
+{% block title %}{{ title }} — MegaShop{% endblock %}
+{% block header %}{{ title }}{% endblock %}
+{% block content %}
+<div class="card shadow-sm">
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Store name</label>
+                    <input type="text" name="name" class="form-control" value="{{ store.name|default:'' }}" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">City</label>
+                    <input type="text" name="city" class="form-control" value="{{ store.city|default:'' }}" required>
+                </div>
+                <div class="col-12 mb-3">
+                    <label class="form-label">Address</label>
+                    <textarea name="address" class="form-control" rows="2" required>{{ store.address|default:'' }}</textarea>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Phone</label>
+                    <input type="text" name="phone" class="form-control" value="{{ store.phone|default:'' }}">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Email</label>
+                    <input type="email" name="email" class="form-control" value="{{ store.email|default:'' }}">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Working hours</label>
+                    <input type="text" name="work_hours" class="form-control" value="{{ store.work_hours|default:'09:00–21:00' }}">
+                </div>
+                {% if store %}
+                <div class="col-12 mb-3">
+                    <div class="form-check">
+                        <input type="checkbox" name="is_active" class="form-check-input" id="is_active" {% if store.is_active %}checked{% endif %}>
+                        <label class="form-check-label" for="is_active">Store is active</label>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg"></i> Save</button>
+            <a href="{% url 'admin_panel:store_list' %}" class="btn btn-outline-secondary">Cancel</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

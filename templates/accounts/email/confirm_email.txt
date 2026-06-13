@@ -1,0 +1,13 @@
+Hello, {{ user.get_full_name|default:user.username }}!
+
+Thank you for registering at MegaShop!
+
+To confirm your email address, please follow the link below:
+{{ confirm_url }}
+
+This link is valid for 24 hours.
+
+If you did not register at MegaShop, please ignore this email.
+
+Best regards,
+The MegaShop Team

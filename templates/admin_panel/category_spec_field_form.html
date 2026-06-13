@@ -1,0 +1,28 @@
+{% extends 'admin_panel/base_admin.html' %}
+{% block title %}{% if field_obj %}Edit{% else %}Add{% endif %} Spec Field — MegaShop{% endblock %}
+{% block header %}{% if field_obj %}Edit: {{ field_obj.field_name }}{% else %}Add Spec Field — {{ category.name }}{% endif %}{% endblock %}
+{% block content %}
+<div class="card shadow-sm">
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            {% for field in form %}
+            <div class="mb-3">
+                <label class="form-label fw-medium">{{ field.label }}</label>
+                {{ field }}
+                {% if field.help_text %}
+                <small class="text-muted d-block mt-1">{{ field.help_text }}</small>
+                {% endif %}
+                {% if field.errors %}
+                <div class="text-danger small mt-1">{{ field.errors|striptags }}</div>
+                {% endif %}
+            </div>
+            {% endfor %}
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-dark">Save</button>
+                <a href="{% url 'admin_panel:category_spec_field_list' category.id %}" class="btn btn-outline-dark">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

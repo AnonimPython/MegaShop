@@ -1,0 +1,69 @@
+{% extends 'admin_panel/base_admin.html' %}
+{% load humanize currency_tags %}
+{% block title %}Analytics — MegaShop{% endblock %}
+{% block header %}Sales Analytics{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div></div>
+    <div class="d-flex gap-2">
+        <a href="{% url 'admin_panel:export_sales_excel' 'month' %}" class="btn btn-outline-dark btn-sm">
+            <i class="bi bi-file-earmark-excel"></i> Export this month
+        </a>
+        <a href="{% url 'admin_panel:export_sales_excel' 'year' %}" class="btn btn-outline-dark btn-sm">
+            <i class="bi bi-file-earmark-excel"></i> Export this year
+        </a>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="card bg-dark text-white shadow">
+            <div class="card-body">
+                <h6>Total Revenue</h6>
+                <h2 class="mb-0">{{ total_revenue|usd_format }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card bg-primary text-white shadow">
+            <div class="card-body">
+                <h6>Total Orders</h6>
+                <h2 class="mb-0">{{ total_orders }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card bg-success text-white shadow">
+            <div class="card-body">
+                <h6>Average Order Value</h6>
+                <h2 class="mb-0">{{ avg_order_value|usd_format }}</h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-header bg-white">
+        <h5 class="mb-0">Top 10 Products by Sales</h5>
+    </div>
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr><th>#</th><th>Product</th><th>Sold</th><th>Revenue</th></tr>
+            </thead>
+            <tbody>
+                {% for p in top_products %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ p.product_name }}</td>
+                    <td><strong>{{ p.total_sold }}</strong> pcs.</td>
+                    <td>{{ p.total_revenue|usd_format }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="4" class="text-center py-4">No sales data</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
